@@ -7,7 +7,7 @@
       <field name="model">biblioteca.libro</field>
       <field name="arch" type="xml">
         <list>
-            <field name="name"/>
+            <field name="firstname"/>
             <field name="value"/>
             <field name="value2"/>
         </list>
@@ -20,10 +20,36 @@
       <field name="arch" type="xml">
         <form>
           <group>
-            <field name="name"/>
+            <field name="firstname"/>
             <field name="value"/>
             <field name="value2"/>
             <field name="description"/>
+          </group>
+        </form>
+      </field>
+    </record>
+
+        <record model="ir.ui.view" id="biblioteca_autor_list">
+      <field name="name">biblioteca autor list</field>
+      <field name="model">biblioteca.autor</field>
+      <field name="arch" type="xml">
+        <list>
+            <field name="firstname"/>
+            <field name="lastname"/>
+
+
+        </list>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="biblioteca_autor_form">
+      <field name="name">biblioteca autor form</field>
+      <field name="model">biblioteca.autor</field>
+      <field name="arch" type="xml">
+        <form>
+          <group>
+            <field name="firstname"/>
+            <field name="lastname"/>
           </group>
         </form>
       </field>
@@ -35,6 +61,12 @@
     <record model="ir.actions.act_window" id="biblioteca_libro_action_window">
       <field name="name">biblioteca libro window</field>
       <field name="res_model">biblioteca.libro</field>
+      <field name="view_mode">list,form</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="biblioteca_autor_action_window">
+      <field name="name">biblioteca autor window</field>
+      <field name="res_model">biblioteca.autor</field>
       <field name="view_mode">list,form</field>
     </record>
 
@@ -57,12 +89,17 @@
 
     <!-- Top menu item -->
 
-    <menuitem name="biblioteca" id="menu_root_biblioteca"/>
+    <menuitem name="Biblioteca" id="biblioteca_menu"/>
 
-    <menuitem name="Libro" 
-    id="biblioteca_Libro_menu"
-    parent="menu_root_biblioteca"
+    <menuitem name="Libro menu" 
+    id="biblioteca.ibro"
+    parent="biblioteca.biblioteca_menu"
     action="biblioteca_libro_action_window"/>
+
+    <menuitem name="Autor menu" 
+    id="biblioteca.autor"
+    parent="biblioteca.biblioteca_menu"
+    action="biblioteca_autor_action_window"/>
 
     <!-- menu categories -->
 <!--
