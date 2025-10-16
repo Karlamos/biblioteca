@@ -42,8 +42,6 @@
         <list>
             <field name="autor"/>
             <field name="descripcion"/>
-
-
         </list>
       </field>
     </record>
@@ -61,11 +59,49 @@
       </field>
     </record>
   
-<!-- editorial -->
+<!-- prestamos -->
 
-    <record model="ir.ui.view" id="biblioteca_editorial_list">
-      <field name="name">biblioteca editorial list</field>
-      <field name="model">biblioteca.editorial</field>
+    <record model="ir.ui.view" id="biblioteca_prestamos_list">
+      <field name="name">biblioteca prestamos list</field>
+      <field name="model">biblioteca.prestamos</field>
+      <field name="arch" type="xml">
+        <list>
+            <field name="autor"/>
+            <field name="descripcion"/>
+        </list>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="biblioteca_prestamos_form">
+      <field name="name">biblioteca prestamos form</field>
+      <field name="model">biblioteca.prestamos</field>
+      <field name="arch" type="xml">
+        <form>
+          <header>
+            <button string ="Prestar" type="object" name="generar_prestamo" class="btn-primary"
+              invisible="estado in ('p', 'd', 'm')" />
+            <field name="estado" widget="statusbar"/>
+          </header>
+          <group>
+            <label for="name" string="Código de prestamo" />
+            <field name="name" readonly = "estado in ('p', 'd', 'm')" nolabel="1"/>
+            <field name="fecha_prestamo" readonly = "estado in ('p', 'd', 'm')"/>
+            <field name="fecha_devolucion" readonly= "estado in ('p', 'd', 'm')" required="estado in ('p', 'm')"/>
+            <field name="Libro_id" readonly= "estado in ('p', 'd', 'm')"/>
+            <field name="usuario_id" readonly= "estado in ('p', 'd', 'm')"/>
+            <field name="multa_bol" readonly= "estado in ('p', 'd', 'm')"/>
+            <field name="multa" readonly= "estado in ('p', 'd', 'm')" invisible="multa_bol == False"/>
+            <field name="fecha_maxima" readonly= "estado in ('p', 'd', 'm')"/>
+            <field name="usuario" readonly= "estado in ('p', 'd', 'm')"/>
+          </group>
+      </field>
+    </record>
+
+<!-- Multas -->
+
+    <record model="ir.ui.view" id="biblioteca_multas_list">
+      <field name="name">biblioteca multas list</field>
+      <field name="model">biblioteca.multas</field>
       <field name="arch" type="xml">
         <form>
           <group>
@@ -76,9 +112,9 @@
       </field>
     </record>
 
-    <record model="ir.ui.view" id="biblioteca_editorial_form">
-      <field name="name">biblioteca editorial form</field>
-      <field name="model">biblioteca.editorial</field>
+    <record model="ir.ui.view" id="biblioteca_multas_form">
+      <field name="name">biblioteca multas form</field>
+      <field name="model">biblioteca.multas</field>
       <field name="arch" type="xml">
         <form>
           <group>
@@ -96,13 +132,14 @@
       <field name="name">biblioteca personal list</field>
       <field name="model">biblioteca.personal</field>
       <field name="arch" type="xml">
-        <tree>
-          <field name="id"/>
+        <list>
+          <field name="codigo_empleado"/>
           <field name="nombre"/>
           <field name="cargo"/>
           <field name="emailper"/>
-          <field name="turno"/>
-        </tree>
+          <field name="turno"/> 
+          
+        </list>
       </field>
     </record>
 
@@ -112,7 +149,7 @@
       <field name="arch" type="xml">
         <form>
           <group>
-            <field name="id"/>
+            <field name="codigo_empleado" required="1"/>
             <field name="nombre"/>
             <field name="cargo"/>
             <field name="emailper"/>
@@ -129,16 +166,14 @@
       <field name="name">biblioteca usuario list</field>
       <field name="model">biblioteca.usuario</field>
       <field name="arch" type="xml">
-        <form>
-          <group>
-            <field name="nombre"/>
-            <field name="email"/>
-            <field name="direccion"/>
-            <field name="libros_prestados"/>
-            <field name="cedula"/>
-            <field name="telefono"/>
-          </group>
-        </form>
+        <list>
+          <field name="nombre"/>
+          <field name="email"/>
+          <field name="direccion"/>
+          <field name="libros_prestados"/>
+          <field name="cedula"/>
+          <field name="telefono"/>
+        </list>
       </field>
     </record>
 
@@ -173,12 +208,17 @@
       <field name="view_mode">list,form</field>
     </record>
 
-    <record model="ir.actions.act_window" id="biblioteca_editorial_action_window">
-      <field name="name">biblioteca editorial window</field>
-      <field name="res_model">biblioteca.editorial</field>
+    <record model="ir.actions.act_window" id="biblioteca_prestamos_action_window">
+      <field name="name">biblioteca prestamos window</field>
+      <field name="res_model">biblioteca.prestamos</field>
       <field name="view_mode">list,form</field>
     </record>
 
+        <record model="ir.actions.act_window" id="biblioteca_multas_action_window">
+      <field name="name">biblioteca multas window</field>
+      <field name="res_model">biblioteca.multas</field>
+      <field name="view_mode">list,form</field>
+    </record>
 
     <record model="ir.actions.act_window" id="biblioteca_personal_action_window">
       <field name="name">biblioteca personal window</field>
@@ -223,10 +263,15 @@
     parent="biblioteca.biblioteca_menu"
     action="biblioteca_autor_action_window"/>
 
-    <menuitem name="Editorial menu" 
-    id="biblioteca.editorial"
+    <menuitem name="Prestamo menu" 
+    id="biblioteca.prestamos"
     parent="biblioteca.biblioteca_menu"
-    action="biblioteca_editorial_action_window"/>
+    action="biblioteca_prestamos_action_window"/>
+
+    <menuitem name="Multa menu" 
+    id="biblioteca.multas"
+    parent="biblioteca.biblioteca_menu"
+    action="biblioteca_multas_action_window"/>
 
 
     <menuitem name="Personal menu" 

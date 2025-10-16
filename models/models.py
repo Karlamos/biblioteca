@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
+from datetime import datetime, timedelta
 
 class biblioteca_libro(models.Model):
     _name = 'biblioteca.libro'
@@ -44,9 +46,49 @@ class biblioteca_Autor(models.Model):
         for record in self:
             record.display_name =f"{record.autor} - {record.descripcion}"
             
-class biblioteca_Editorial(models.Model):
-    _name ='biblioteca.editorial'
-    _description = 'biblioteca.editorial'
+            
+            
+class biblioteca_Prestamo(models.Model):
+    _name ='biblioteca.prestamos'
+    _description = 'biblioteca.prestamos'
+
+    name= fields.Char( string='Prestamo')
+    fecha_prestamo = fields.Datetime(default=datetime.now())
+    libro_id=fields.Many2one('biblioteca.libro')
+    usuario_id = fields.Many2one('biblioteca.usuario', string='Usuario')
+    fecha_devolucion= fields.Datetime()
+    multa_bol = fields.Boolean(default=False)
+    multa=fields.Float()
+    fecha_maxima=fields.Datetime(compute='_compute_fecha_devolucion')
+    usuario=fields.Many2one('res.users', string='Usuario presta', default= lambda self: self.evn.uid)
+    estado = fields.Selection([('b','Borrador'),
+                               ('p','Prestado'),
+                               ('m','Multa'),
+                               ('d','Devuelto')],
+                              string='Estado', default='b')
+
+    @api.depends('fecha_maxima', 'fecha_prestamo')
+    def _compute_fecha_devolucion(self):
+        for record in self:
+            record.fecha_maxima = record.fecha_prestamo + timedelta(days=2)
+    
+    
+    def write(self, vals):
+        seq= self.env.ref('biblioteca.sequence_codigo_prestamo').next_by_code('biblioteca.prestamo')
+        vals['name']=seq
+        return super(biblioteca_Prestamo, self).write(vals)
+     
+     
+           
+    def generar_prestamo(self):
+        print("Generando prestamo")
+        self.write({'estado':'p'})
+        
+        
+        
+class biblioteca_Multas(models.Model):
+    _name ='biblioteca.multas'
+    _description = 'biblioteca.multas'
     _rec_name = 'firstname'
     
     firstname = fields.Char()
