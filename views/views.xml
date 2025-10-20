@@ -1,6 +1,5 @@
 <odoo>
   <data>
-    <!-- explicit list view definition -->
 
     <record model="ir.ui.view" id="biblioteca_libro_list">
       <field name="name">biblioteca libro list</field>
@@ -10,23 +9,29 @@
             <field name="name"/>
             <field name="autor"/>
             <field name="genero"/>
-            <field name="anio_pub"/>
+            <field name="a_pub"/>
         </list>
       </field>
     </record>
 
-    <record model="ir.ui.view" id="biblioteca_libro_form">
-      <field name="name">biblioteca libro form</field>
+    <record id="view_biblioteca_libro_form" model="ir.ui.view">
+      <field name="name">biblioteca.libro.form</field>
       <field name="model">biblioteca.libro</field>
       <field name="arch" type="xml">
-        <form>
-          <group>
-            <field name="name"/>
-            <field name="autor"/>
-            <field name="genero"/>
-            <field name="anio_pub"/>
-          </group>
-        </form>
+          <form string="Libro">
+              <sheet>
+                  <group>
+                      <field name="isbn"/>
+                      <field name="name"/>
+                      <field name="autor"/>
+                      <field name="genero"/>
+                      <field name="a_pub"/>
+                      <field name="descripcion"/>
+                      <field name="portada_url" invisible="1"/> 
+                      <field name="portada_html" readonly="1"/> 
+                  </group>
+              </sheet>
+          </form>
       </field>
     </record>
 
@@ -65,35 +70,42 @@
       <field name="name">biblioteca prestamos list</field>
       <field name="model">biblioteca.prestamos</field>
       <field name="arch" type="xml">
-        <list>
-            <field name="autor"/>
-            <field name="descripcion"/>
+        <list string="Préstamos">
+            <field name="name"/>
+            <field name="fecha_prestamo"/>
+            <field name="libro_id"/>
+                       
+            <field name="multa"/>
+            <field name="estado"/>
         </list>
       </field>
     </record>
 
     <record model="ir.ui.view" id="biblioteca_prestamos_form">
-      <field name="name">biblioteca prestamos form</field>
+      <field name="name">biblioteca.prestamos.form</field>
       <field name="model">biblioteca.prestamos</field>
       <field name="arch" type="xml">
-        <form>
+        <form string="Préstamo">
           <header>
-            <button string ="Prestar" type="object" name="generar_prestamo" class="btn-primary"
-              invisible="estado in ('p', 'd', 'm')" />
+            <button string ="Prestar" type="object" name="generar_prestamo"
+            invisible="estado in ('p', 'd', 'm')" />
             <field name="estado" widget="statusbar"/>
           </header>
-          <group>
-            <label for="name" string="Código de prestamo" />
-            <field name="name" readonly = "estado in ('p', 'd', 'm')" nolabel="1"/>
-            <field name="fecha_prestamo" readonly = "estado in ('p', 'd', 'm')"/>
-            <field name="fecha_devolucion" readonly= "estado in ('p', 'd', 'm')" required="estado in ('p', 'm')"/>
-            <field name="Libro_id" readonly= "estado in ('p', 'd', 'm')"/>
-            <field name="usuario_id" readonly= "estado in ('p', 'd', 'm')"/>
-            <field name="multa_bol" readonly= "estado in ('p', 'd', 'm')"/>
-            <field name="multa" readonly= "estado in ('p', 'd', 'm')" invisible="multa_bol == False"/>
-            <field name="fecha_maxima" readonly= "estado in ('p', 'd', 'm')"/>
-            <field name="usuario" readonly= "estado in ('p', 'd', 'm')"/>
-          </group>
+          <sheet>
+            <group>
+              <label for="name" string="Código de prestamo" />
+              <field name="name" readonly = "estado in ('p', 'd', 'm')" nolabel="1"/>
+              <field name="fecha_prestamo" readonly = "estado in ('p', 'd', 'm')"/>
+              <field name="fecha_devolucion" readonly= "estado in ('p', 'd', 'm')" required="estado in ('p', 'm')"/>
+              <field name="libro_id" readonly= "estado in ('p', 'd', 'm')" />
+              <field name="usuario_id" readonly= "estado in ('p', 'd', 'm')"/>
+              <field name="multa_bol" readonly= "estado in ('p', 'd', 'm')"/>
+              <field name="multa" readonly= "estado in ('p', 'd', 'm')" invisible="multa_bol == False"/>
+              <field name="fecha_maxima" readonly= "estado in ('p', 'd', 'm')"/>
+              <field name="usuario" readonly= "estado in ('p', 'd', 'm')"/>
+            </group>
+          </sheet>
+        </form>
       </field>
     </record>
 
