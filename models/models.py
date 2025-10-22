@@ -128,7 +128,7 @@ class biblioteca_Prestamo(models.Model):
     fecha_devolucion= fields.Datetime()
     multa_bol = fields.Boolean(default=False)
     multa=fields.Float()
-    fecha_maxima=fields.Datetime(compute='_compute_fecha_devolucion')
+    fecha_maxima=fields.Datetime(compute='_compute_fecha_devolucion', store=True)
     usuario=fields.Many2one('res.users', string='Usuario presta', default= lambda self: self.env.uid)
     estado = fields.Selection([('b','Borrador'),
                                ('p','Prestado'),
@@ -136,6 +136,22 @@ class biblioteca_Prestamo(models.Model):
                                ('d','Devuelto')],
                               string='Estado', default='b')
 
+    
+    
+    def _cron_multas(self):
+        prestamos = self.env['biblioteca.prestamo'].search([('estado','=','p'),
+                                                           ('fecha_maxima','<', datetime.now())])
+        for prestamo in prestamos:
+            prestamo.write=({'estado':'m',
+                             'multa_bol': True,
+                             'multa':1.0})
+            
+        prestamos = self.env['biblioteca.prestamo'].search([('estado','=','m')])
+        for prestamo in prestamos:
+            days= (datetime.now() - prestamo.fecha_maxima).days
+            prestamo.write({'multa': days})
+        
+        
     @api.depends('fecha_maxima', 'fecha_prestamo')
     def _compute_fecha_devolucion(self):
         for record in self:
