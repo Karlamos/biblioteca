@@ -139,14 +139,14 @@ class biblioteca_Prestamo(models.Model):
     
     
     def _cron_multas(self):
-        prestamos = self.env['biblioteca.prestamo'].search([('estado','=','p'),
+        prestamos = self.env['biblioteca.prestamos'].search([('estado','=','p'),
                                                            ('fecha_maxima','<', datetime.now())])
         for prestamo in prestamos:
-            prestamo.write=({'estado':'m',
+            prestamo.write({'estado':'m',
                              'multa_bol': True,
                              'multa':1.0})
             
-        prestamos = self.env['biblioteca.prestamo'].search([('estado','=','m')])
+        prestamos = self.env['biblioteca.prestamos'].search([('estado','=','m')])
         for prestamo in prestamos:
             days= (datetime.now() - prestamo.fecha_maxima).days
             prestamo.write({'multa': days})
