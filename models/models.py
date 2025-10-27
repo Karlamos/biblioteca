@@ -118,8 +118,8 @@ class biblioteca_Autor(models.Model):
             
             
 class biblioteca_Prestamo(models.Model):
-    _name ='biblioteca.prestamos'
-    _description = 'biblioteca.prestamos'
+    _name ='biblioteca.prestamo'
+    _description = 'biblioteca.prestamo'
 
     name= fields.Char( string='Prestamo')
     fecha_prestamo = fields.Datetime(default=datetime.now())
@@ -139,17 +139,25 @@ class biblioteca_Prestamo(models.Model):
     
     
     def _cron_multas(self):
-        prestamos = self.env['biblioteca.prestamos'].search([('estado','=','p'),
+        prestamos = self.env['biblioteca.prestamo'].search([('estado','=','p'),
                                                            ('fecha_maxima','<', datetime.now())])
         for prestamo in prestamos:
             prestamo.write({'estado':'m',
                              'multa_bol': True,
                              'multa':1.0})
-            
-        prestamos = self.env['biblioteca.prestamos'].search([('estado','=','m')])
+            seq= self.env.ref('biblioteca.sequence_codigo_multa').next_by_code('biblioteca.multa')
+            mult= self.env ['biblioteca.multa'].create({'name_multa':seq,
+                                                        'multa':f"Prestamo a{prestamo.usuario_id.nombre} el libro {prestamo.libro_id.name}",
+                                                        'costo_multa': prestamo.multa,
+                                                        'fecha_multa': datatime.now(),
+                                                        'prestamo': prestamo.id ,})
+        prestamos = self.env['biblioteca.prestamo'].search([('estado','=','m')])
         for prestamo in prestamos:
+            multa = self.env['biblioteca.multa'].search([('prestamo','=', prestamo.id)])
             days= (datetime.now() - prestamo.fecha_maxima).days
+            multa.write({'costo_multa': days})
             prestamo.write({'multa': days})
+            
         
         
     @api.depends('fecha_maxima', 'fecha_prestamo')
@@ -172,17 +180,16 @@ class biblioteca_Prestamo(models.Model):
         
         
 class biblioteca_Multas(models.Model):
-    _name ='biblioteca.multas'
-    _description = 'biblioteca.multas'
-    _rec_name = 'firstname'
+    _name ='biblioteca.multa'
+    _description = 'biblioteca.multa'
+    _rec_name = 'name_multa'
     
-    firstname = fields.Char()
-    lastname = fields.Char()
+    name_multa = fields.Char(string='Código multa')
+    multa = fields.Char(string='Descripción de la multa')
+    costo_multa = fields.Char(string='Costo de la multa')
+    costo_multa = fields.Date(string='Fecha de la multa')
+    prestamo= fields.Many2one('biblioteca.prestamo')
     
-    @api.depends('firstname', 'lastname')
-    def _compute_display_name(self):
-        for record in self:
-            record.display_name =f"{record.firstname} - {record.lastname}"
             
             
 class biblioteca_Personal(models.Model):

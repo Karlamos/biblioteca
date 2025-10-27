@@ -9,5 +9,13 @@
             <field name="padding">4</field>
 
         </record>
+
+        <record id="sequence_codigo_multa" model="ir.sequence">
+            <field name="name"> Secuencia multa </field>
+            <field name="code">biblioteca.multa</field>
+            <field name="prefix">MLT</field>
+            <field name="padding">4</field>
+
+        </record>
     </data>
 </odoo>
