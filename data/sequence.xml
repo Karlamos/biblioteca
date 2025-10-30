@@ -2,7 +2,7 @@
 <odoo>
     <data>
         <record id="sequence_codigo_prestamo" model="ir.sequence">
-            <field name="name"> Secuencia para prestamos </field>
+            <field name="name">Secuencia para prestamos</field>
             <field name="code">biblioteca.prestamo</field>
             <field name="prefix">BLB-</field>
             <field name="suffix">-PRS</field>
@@ -11,11 +11,10 @@
         </record>
 
         <record id="sequence_codigo_multa" model="ir.sequence">
-            <field name="name"> Secuencia multa </field>
+            <field name="name">Secuencia multa</field>
             <field name="code">biblioteca.multa</field>
             <field name="prefix">MLT</field>
             <field name="padding">4</field>
-
         </record>
     </data>
 </odoo>

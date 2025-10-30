@@ -136,7 +136,7 @@ class biblioteca_Prestamo(models.Model):
                                ('d','Devuelto')],
                               string='Estado', default='b')
 
-    
+    multas_ids= fields.One2many('biblioteca.multa', 'prestamo', string='Multar')
     
     def _cron_multas(self):
         prestamos = self.env['biblioteca.prestamo'].search([('estado','=','p'),
@@ -146,10 +146,10 @@ class biblioteca_Prestamo(models.Model):
                              'multa_bol': True,
                              'multa':1.0})
             seq= self.env.ref('biblioteca.sequence_codigo_multa').next_by_code('biblioteca.multa')
-            mult= self.env ['biblioteca.multa'].create({'name_multa':seq,
+            multa= self.env ['biblioteca.multa'].create({'name_multa':seq,
                                                         'multa':f"Prestamo a{prestamo.usuario_id.nombre} el libro {prestamo.libro_id.name}",
                                                         'costo_multa': prestamo.multa,
-                                                        'fecha_multa': datatime.now(),
+                                                        'fecha_multa': datetime.now(),
                                                         'prestamo': prestamo.id ,})
         prestamos = self.env['biblioteca.prestamo'].search([('estado','=','m')])
         for prestamo in prestamos:
@@ -177,6 +177,16 @@ class biblioteca_Prestamo(models.Model):
         print("Generando prestamo")
         self.write({'estado':'p'})
         
+    def action_registrar_multa(self):
+        return {
+            'name':'Registrar multa',
+            'type':'ir.actions.act_window',
+            'res_model':'biblioteca.multa',
+            'view_mode':'form',
+            'target':'new',
+            'context':{'default_prestamo':self.id},
+        }
+        
         
         
 class biblioteca_Multas(models.Model):
@@ -185,10 +195,36 @@ class biblioteca_Multas(models.Model):
     _rec_name = 'name_multa'
     
     name_multa = fields.Char(string='Código multa')
-    multa = fields.Char(string='Descripción de la multa')
-    costo_multa = fields.Char(string='Costo de la multa')
-    costo_multa = fields.Date(string='Fecha de la multa')
     prestamo= fields.Many2one('biblioteca.prestamo')
+    danado= fields.Boolean(string='Libro Dañado', default=False)
+    perdida=fields.Boolean(string='Libro Perdido', default=False)
+    
+    estado= fields.Selection(
+        [('pen', 'Pendiente'), ('pag', 'Pagado')],
+        string='Estado',
+        required=True,
+        default='pen'
+    )
+    
+    @api.model
+    def create(Self,vals):
+        multa=super().create(vals) #Llama al método create original de Odoo para crear el registro en la base de datos.
+        if multa.prestamo:
+            multa.prestamo.write({'estado':'m','multa_bol':True})
+        return multa    
+    
+    
+    @api.constrains('danado', 'perdida', 'estado')
+    def _check_estado(self):
+        for rec in self:
+            if (rec.danado or rec.perdida) and rec.estado == 'pag':
+                raise ValidationError("No puedes marcar el estado como 'Pagado' si el libro está dañado o perdido.")
+            
+    def write(self, vals):
+        seq= self.env.ref('biblioteca.sequence_codigo_multa').next_by_code('biblioteca.multa')
+        vals['name']=seq
+        return super(biblioteca_Multas, self).write(vals)
+    
     
             
             

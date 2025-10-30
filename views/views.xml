@@ -73,8 +73,7 @@
         <list string="Préstamos">
             <field name="name"/>
             <field name="fecha_prestamo"/>
-            <field name="libro_id"/>
-                       
+            <field name="libro_id"/>        
             <field name="multa"/>
             <field name="estado"/>
         </list>
@@ -88,7 +87,11 @@
         <form string="Préstamo">
           <header>
             <button string ="Prestar" type="object" name="generar_prestamo"
-            invisible="estado in ('p', 'd', 'm')" />
+              invisible="estado in ('p', 'd', 'm')" />
+            <button string="Multar" type="object" name="action_registrar_multa"
+             invisible="estado != 'p'" class="btn_warning" />
+
+
             <field name="estado" widget="statusbar"/>
           </header>
           <sheet>
@@ -103,6 +106,14 @@
               <field name="multa" readonly= "estado in ('p', 'd', 'm')" invisible="multa_bol == False"/>
               <field name="fecha_maxima" readonly= "estado in ('p', 'd', 'm')"/>
               <field name="usuario" readonly= "estado in ('p', 'd', 'm')"/>
+              <field name="multas_ids">  
+                <list editable="bottom">
+                  <field name="name_multa"/>
+                  <field name="danado" readonly="perdida == True"/>
+                  <field name="perdida" readonly="danado == True"/>
+                  <field name="estado"/>
+                </list>
+              </field>  
             </group>
           </sheet>
         </form>
@@ -118,10 +129,10 @@
         <form>
           <group> 
             <field name="name_multa"/>         
-            <field name="multa"/>
-            <field name="costo_multa"/>
-            <field name="costo_multa"/>
             <field name="prestamo"/>
+            <field name="perdida"/>
+            <field name="danado"/>
+            <field name="estado"/>
           </group> 
         </form>
       </field>
@@ -134,10 +145,10 @@
         <form>
           <group>
             <field name="name_multa"/>         
-            <field name="multa"/>
-            <field name="costo_multa"/>
-            <field name="costo_multa"/>
             <field name="prestamo"/>
+            <field name="danado" readonly="perdida == True"/>
+            <field name="perdida" readonly="danado == True"/>
+            <field name="estado"/>
           </group>
         </form>
       </field>
