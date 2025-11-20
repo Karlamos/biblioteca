@@ -16,5 +16,13 @@
             <field name="prefix">MLT</field>
             <field name="padding">4</field>
         </record>
+
+        <record id="sequence_biblioteca_prestamo" model="ir.sequence">
+            <field name="name">Préstamo Biblioteca</field>
+            <field name="code">biblioteca.prestamo</field>
+            <field name="prefix">PRE-</field>
+            <field name="padding">5</field>
+            <field name="number_increment">1</field>
+        </record>
     </data>
 </odoo>
