@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': "biblioteca",
+    'installable': True,
 
     'summary': "Short (1 phrase/line) summary of the module's purpose",
 
@@ -27,7 +28,7 @@ Long description of module's purpose
         #'views/templates.xml',
         'data/sequence.xml',
         'data/cron.xml',
-        'views/prestamo_report.xml'
+        'views/prestamo_report.xml',
         
     ],
     # only loaded in demonstration mode
@@ -35,6 +36,6 @@ Long description of module's purpose
     #    'demo/demo.xml',
     #],
     'application': True,
-    'license': 'AGPL-3'
+    'license': 'LGPL-3'
 }
 

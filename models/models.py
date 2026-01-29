@@ -22,6 +22,7 @@ class BibliotecaLibro(models.Model):
     descripcion = fields.Text(string='Descripción')
     portada_url = fields.Char(string='URL de Portada')
     portada_html = fields.Html('Vista previa', compute='_compute_portada_html')
+    fuente_datos = fields.Char(string='Sacado de', readonly=True, help="Indica si el libro vino de Django o Open Library")
 
     @api.depends('portada_url')
     def _compute_portada_html(self):
@@ -33,63 +34,66 @@ class BibliotecaLibro(models.Model):
             ''' if record.portada_url else ''
 
     @api.onchange('isbn')
-    def _get_openlibrary_data(self):
+    def _get_data_from_django(self):
         if not self.isbn:
+            self.fuente_datos = ""
             return
+        
+        isbn_clean = self.isbn.strip()
+        django_url = f"http://localhost:8000/api/libros/{isbn_clean}/"
+        token = "99450df785e5ab327bc2777e202d2ed2f0485bb2" 
+        headers = {'Authorization': f'Token {token}', 'Content-Type': 'application/json'}
+
         try:
-            url = f"https://openlibrary.org/api/books?bibkeys=ISBN:{self.isbn}&format=json&jscmd=data"
-            res = requests.get(url, timeout=10)
-            res.raise_for_status()
-            data = res.json()
-            key = f"ISBN:{self.isbn}"
-            if key not in data:
-                self.descripcion = "Sin descripción disponible."
-                return
+            res = requests.get(django_url, headers=headers, timeout=10)
+            
+            if res.status_code in [200, 201]:
+                data = res.json()
+                self.name = data.get('titulo', 'Sin título')
+                
 
-            book = data[key]
-            self.name = book.get('title') or self.name
-            self.a_pub = book.get('publish_date') or self.a_pub
-
-            # Autor
-            authors = book.get('authors')
-            if authors:
-                author_name = authors[0]['name']
-                autor = self.env['biblioteca.autor'].search([('autor','=',author_name)], limit=1)
-                if not autor:
-                    autor = self.env['biblioteca.autor'].create({'autor': author_name})
-                self.autor = autor.id
-
-            # Portada
-            cover = book.get('cover', {})
-            self.portada_url = cover.get('medium') or cover.get('small') or ''
-
-            # Descripción
-            desc = book.get('description')
-            if isinstance(desc, dict):
-                self.descripcion = desc.get('value')
-            elif isinstance(desc, str):
-                self.descripcion = desc
-            else:
-                work_key = book.get('key')
-                if work_key:
-                    work_url = f"https://openlibrary.org{work_key}.json"
-                    res_work = requests.get(work_url, timeout=10)
-                    res_work.raise_for_status()
-                    work_data = res_work.json()
-                    work_desc = work_data.get('description')
-                    if isinstance(work_desc, dict):
-                        self.descripcion = work_desc.get('value')
-                    elif isinstance(work_desc, str):
-                        self.descripcion = work_desc
-                    else:
-                        notes = work_data.get('notes')
-                        self.descripcion = notes if isinstance(notes,str) else "Sin descripción disponible."
+                origen = data.get('fuente_datos', '')
+                if origen == 'Django':
+                    self.fuente_datos = "Base de Datos Django"
+                elif origen == 'OpenLibrary':
+                    self.fuente_datos = "OpenLibrary (vía Django)"
                 else:
-                    self.descripcion = "Sin descripción disponible."
+                    self.fuente_datos = "Sincronizado"
+ 
+
+                self.name = data.get('titulo', 'Sin título')
+                self.descripcion = data.get('descripcion', '')
+                self.a_pub = data.get('anio_publicacion', '')
+                
+
+                origen = data.get('fuente_datos', 'Django')
+                if origen.lower() == 'openlibrary':
+                    self.fuente_datos = "OpenLibrary (vía Django)"
+                else:
+                    self.fuente_datos = "Base de Datos Django"
+
+
+                n = data.get('autor_nombre', '')
+                a = data.get('autor_apellido', '')
+                nom_completo = f"{n} {a}".strip() or "Autor Desconocido"
+                
+                autor_obj = self.env['biblioteca.autor'].search([('autor', '=', nom_completo)], limit=1)
+                if not autor_obj:
+                    autor_obj = self.env['biblioteca.autor'].create({'autor': nom_completo})
+                self.autor = autor_obj.id
+
+                return {'warning': {'title': "¡Éxito!", 'message': f"Libro encontrado en {self.fuente_datos}"}}
+            
+            else:
+                self.fuente_datos = "No encontrado"
+                return {'warning': {'title': "Aviso", 'message': "El ISBN no está registrado."}}
 
         except Exception as e:
-            logger.error(f"Error OpenLibrary completo: {e}")
-            self.descripcion = "No se pudo obtener la descripción."
+            self.fuente_datos = "Error de conexión"
+            return {'warning': {'title': "Error", 'message': str(e)}}
+        
+
+
 
 # ----------------- MODELO AUTOR -----------------
 class BibliotecaAutor(models.Model):

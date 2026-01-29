@@ -15,23 +15,32 @@
     </record>
 
     <record model="ir.ui.view" id="biblioteca_libro_form">
-      <field name="name">biblioteca libro form</field>
-      <field name="model">biblioteca.libro</field>
-      <field name="arch" type="xml">
-        <form string="Libro">
-          <sheet>
-            <group>
-              <field name="isbn"/>
-              <field name="name"/>
-              <field name="autor"/>
-              <field name="a_pub"/>
-              <field name="portada_url" invisible="1"/>
-              <field name="portada_html" readonly="1"/>
-              <field name="descripcion"/>
-            </group>
-          </sheet>
-        </form>
-      </field>
+        <field name="name">biblioteca.libro.form</field>
+        <field name="model">biblioteca.libro</field>
+        <field name="arch" type="xml">
+            <form string="Libro">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="isbn"/>
+                            <field name="name"/>
+                            <field name="autor"/>
+                            <field name="a_pub"/>
+                        </group>
+                        <group>
+                            <field name="fuente_datos" readonly="1"/>
+                            <field name="portada_url" invisible="1"/>
+                            <field name="portada_html" widget="html" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Descripción">
+                            <field name="descripcion" placeholder="Escribe una descripción..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
     </record>
 
     <!-- AUTOR -->
